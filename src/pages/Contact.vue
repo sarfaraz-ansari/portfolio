@@ -23,9 +23,8 @@ const handleSubmit = async () => {
   
   try {
     const templateParams = {
-      to_email: emailConfig.TO_EMAIL,
-      user_name: formData.value.name,
-      user_email: formData.value.email,
+      name: formData.value.name,
+      email: formData.value.email,
       message: formData.value.message
     }
 
