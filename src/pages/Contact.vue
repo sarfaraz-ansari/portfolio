@@ -1,23 +1,54 @@
 <script setup>
 import { ref } from 'vue'
+import emailjs from '@emailjs/browser'
+import { emailConfig } from '../config/emailjs'
+
+// Initialize EmailJS
+if (emailConfig?.PUBLIC_KEY) {
+  emailjs.init(emailConfig?.PUBLIC_KEY)
+}
 
 const formData = ref({
   name: '',
   email: '',
-  subject: '',
   message: ''
 })
 
 const submitted = ref(false)
+const error = ref(false)
+const loading = ref(false)
 
-const handleSubmit = () => {
-  // Here you would typically send the form data to a backend
-  console.log('Form submitted:', formData.value)
-  submitted.value = true
-  setTimeout(() => {
-    submitted.value = false
-    formData.value = { name: '', email: '', subject: '', message: '' }
-  }, 3000)
+const handleSubmit = async () => {
+  loading.value = true
+  
+  try {
+    const templateParams = {
+      to_email: emailConfig.TO_EMAIL,
+      user_name: formData.value.name,
+      user_email: formData.value.email,
+      message: formData.value.message
+    }
+
+    await emailjs.send(
+      emailConfig.SERVICE_ID,
+      emailConfig.TEMPLATE_ID,
+      templateParams
+    )
+
+    submitted.value = true
+    error.value = false
+    
+    // Clear form after successful submission
+    setTimeout(() => {
+      submitted.value = false
+      formData.value = { name: '', email: '', message: '' }
+      loading.value = false
+    }, 3000)
+  } catch (err) {
+    console.error('Email send error:', err)
+    error.value = true
+    loading.value = false
+  }
 }
 </script>
 
@@ -100,18 +131,6 @@ const handleSubmit = () => {
               />
             </div>
 
-            <!-- Subject -->
-            <div>
-              <label class="block text-white font-semibold mb-2">Subject</label>
-              <input 
-                v-model="formData.subject"
-                type="text" 
-                placeholder="Project Discussion"
-                required
-                class="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 transition"
-              />
-            </div>
-
             <!-- Message -->
             <div>
               <label class="block text-white font-semibold mb-2">Message</label>
@@ -127,15 +146,21 @@ const handleSubmit = () => {
             <!-- Submit Button -->
             <button 
               type="submit"
-              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition"
+              :disabled="loading"
+              class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition"
             >
-              Send Message
+              {{ loading ? 'Sending...' : 'Send Message' }}
             </button>
           </form>
 
           <!-- Success Message -->
           <div v-if="submitted" class="mt-6 p-4 bg-green-900 border border-green-700 rounded-lg">
             <p class="text-green-200">✓ Message sent successfully! I'll get back to you soon.</p>
+          </div>
+
+          <!-- Error Message -->
+          <div v-if="error" class="mt-6 p-4 bg-red-900 border border-red-700 rounded-lg">
+            <p class="text-red-200">✗ EmailJS is not configured. Please set up your email service credentials in the config file.</p>
           </div>
         </div>
       </div>
