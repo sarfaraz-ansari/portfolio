@@ -54,6 +54,9 @@ import SubscriblyLogo from '../../public/subscribly_logo.png'
               <span class="bg-slate-700 text-blue-300 text-xs px-3 py-1 rounded-full">Supabase</span>
               <span class="bg-slate-700 text-blue-300 text-xs px-3 py-1 rounded-full">TypeScript</span>
             </div>
+            <a href="https://subscribly.sarfaraj.in/" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition block mt-3 w-max">
+              Visit Site →
+            </a>
           </div>
         </div>
       </div>
